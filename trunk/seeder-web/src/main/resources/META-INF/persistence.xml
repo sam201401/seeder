@@ -11,6 +11,7 @@
       <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/seeder"/>
       <property name="hibernate.cache.provider_class" value="org.hibernate.cache.NoCacheProvider"/>
       <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
       <property name="transaction.factory_class" value="org.hibernate.transaction.JDBCTransactionFactory"/>
     </properties>
   </persistence-unit>
