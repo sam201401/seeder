@@ -41,7 +41,7 @@
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class> 
         <init-param> 
             <param-name>encoding</param-name> 
-            <param-value>Latin-1</param-value> 
+            <param-value>ISO-8859-1</param-value> 
         </init-param> 
     </filter> 
     <filter-mapping> 
