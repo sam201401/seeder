@@ -12,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Temporal;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.Index;
@@ -26,14 +28,17 @@ import org.hibernate.annotations.Table;
     @Index(name = "searchIndex", columnNames = {"infoHash", "expires"})})
 @javax.persistence.Table(name = "peer", uniqueConstraints =
 @UniqueConstraint(columnNames = {"infoHash", "ip", "port"}))
+@NamedQueries({
+    @NamedQuery(name = "getPeers",
+    query = "from Peer where infoHash = :infoHash and expires > :expires and not (port = :port and ip = :ip)"),
+    @NamedQuery(name = "findPeer",
+    query = "from Peer where infoHash = :infoHash and port = :port and ip = :ip")})
 public class Peer implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(length = 40)
-    private String peerId;
     @Column(length = 40, nullable = false)
     private String infoHash;
     @Column(nullable = false)
@@ -66,14 +71,6 @@ public class Peer implements Serializable {
 
     public void setIp(String ip) {
         this.ip = ip;
-    }
-
-    public String getPeerId() {
-        return peerId;
-    }
-
-    public void setPeerId(String peerId) {
-        this.peerId = peerId;
     }
 
     public Integer getPort() {
@@ -113,6 +110,6 @@ public class Peer implements Serializable {
 
     @Override
     public String toString() {
-        return "br.com.trofo.seeder.entity.Peer[ id=" + id + " ]";
+        return "br.com.trofo.seeder.entity.Peer[ id=" + id + ", infoHash=" + infoHash + " ]";
     }
 }

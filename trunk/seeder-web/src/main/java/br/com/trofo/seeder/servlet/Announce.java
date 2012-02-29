@@ -31,31 +31,31 @@ public class Announce extends HttpServlet {
     private PeerDao peerDao;
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        
+
         injectBeans();
 
         String responseString = "error";
         try {
             Peer requestingPeer = buildRequestingPeer(request);
 
-            String compactFlag = request.getParameter("compact");
-            String noPeerIdFlag = request.getParameter("no_peer_id");
-            Integer numWant = Integer.parseInt(request.getParameter("numwant"));
-            Collection<Peer> peers = peerDao.getPeers(requestingPeer, numWant);
+            Collection<Peer> peers = peerDao.getPeers(requestingPeer, 100);
 
-            if (compactFlag != null && compactFlag.equals("1")) {
-                responseString = buildCompactResponse(peers);
-            } else {
-                throw new RuntimeException("Only compact messages are supported");
-            }
+            responseString = buildCompactResponse(peers);
+
             persistOrUpdatePeer(requestingPeer);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
-            response.setStatus(500);
+            ex.printStackTrace();            
         }
-        
         writeResponse(response, responseString);
+    }
+
+    private int getPort(HttpServletRequest request) throws NumberFormatException {
+        String parameter = request.getParameter("port");
+        if (parameter != null) {
+            return Integer.parseInt(parameter);
+        }
+        return request.getRemotePort();
     }
 
     private void writeResponse(HttpServletResponse response, String responseString) throws IOException {
@@ -97,7 +97,7 @@ public class Announce extends HttpServlet {
                 resultIpV6.append((char) port.get(2));
                 resultIpV6.append((char) port.get(3));
             }
-            
+
         }
 
         HashMap responseParams = new HashMap();
@@ -113,11 +113,9 @@ public class Announce extends HttpServlet {
     private Peer buildRequestingPeer(HttpServletRequest request) throws NumberFormatException, UnknownHostException {
         Peer requestingPeer = new Peer();
         requestingPeer.setInfoHash(Hash.getHex(request.getParameter("info_hash").getBytes()));
-        requestingPeer.setPeerId(Hash.getHex(request.getParameter("peer_id").getBytes()));
-        requestingPeer.setPort(Integer.parseInt(request.getParameter("port")));
+        requestingPeer.setPort(getPort(request));
 
         InetAddress remoteAddress = getAddress(request);
-
         requestingPeer.setIp(Hash.getHex(remoteAddress.getAddress()));
 
         Date expireTime;
