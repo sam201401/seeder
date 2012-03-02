@@ -45,7 +45,7 @@ public class Announce extends HttpServlet {
             persistOrUpdatePeer(requestingPeer);
 
         } catch (Exception ex) {
-            ex.printStackTrace();            
+            ex.printStackTrace();
         }
         writeResponse(response, responseString);
     }
@@ -83,7 +83,16 @@ public class Announce extends HttpServlet {
     private String buildCompactResponse(Collection<Peer> peers) throws Exception {
         StringBuilder resultIpV6 = new StringBuilder();
         StringBuilder resultIpV4 = new StringBuilder();
+        int seeders = 0;
+        int leechers = 0;
         for (Peer requestingPeer : peers) {
+
+            if (requestingPeer.isComplete()) {
+                seeders++;
+            } else {
+                leechers++;
+            }
+
             char[] ipBytes = Hash.hexStringToByteArray(requestingPeer.getIp());
 
             ByteBuffer port = ByteBuffer.allocate(4);
@@ -101,6 +110,8 @@ public class Announce extends HttpServlet {
         }
 
         HashMap responseParams = new HashMap();
+        responseParams.put("complete", seeders);
+        responseParams.put("incomplete", leechers);
         responseParams.put("interval", INTERVAL);
         responseParams.put("peers", resultIpV4.toString());
         if (resultIpV6.length() > 0) {
@@ -126,6 +137,10 @@ public class Announce extends HttpServlet {
             expireTime = new Date(System.currentTimeMillis() + (int) (INTERVAL * 1000 * 1.2));
         }
         requestingPeer.setExpires(expireTime);
+
+        if (event != null && event.equals("completed")) {
+            requestingPeer.setComplete(true);
+        }
 
         return requestingPeer;
     }

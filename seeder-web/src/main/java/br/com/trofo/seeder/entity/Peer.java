@@ -48,6 +48,7 @@ public class Peer implements Serializable {
     @Column(nullable = false)
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date expires;
+    private boolean complete;
 
     public Date getExpires() {
         return expires;
@@ -88,6 +89,14 @@ public class Peer implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public void setComplete(boolean complete) {
+        this.complete = complete;
+    }    
 
     @Override
     public int hashCode() {
