@@ -27,7 +27,8 @@ public class PeerDao {
         if(existingPeer == null){
             entityManager.persist(peer);            
         } else {
-            existingPeer.setExpires(peer.getExpires());            
+            existingPeer.setExpires(peer.getExpires());           
+            existingPeer.setComplete(peer.isComplete());
             entityManager.merge(existingPeer);
         }
 
